@@ -296,4 +296,33 @@ export const doctors = [
             line2: 'Mumbai, Maharashtra'
         }
     },
+
+    {
+        _id: 'doc16',
+        name: 'Dr. Vinay Kulkarni',
+        image: doc1,
+        speciality: 'Gastroenterologist',
+        degree: 'MBBS, DM (Gastroenterology)',
+        experience: '10 Years',
+        about: 'Dr. Vinay Kulkarni specializes in treating digestive system disorders, including liver diseases, IBD, and gastrointestinal cancers.',
+        fees: 850,
+        address: {
+            line1: '21st Main, Sadashivanagar',
+            line2: 'Bengaluru, Karnataka'
+        }
+    },
+    {
+        _id: 'doc17',
+        name: 'Dr. Rachana Deshmukh',
+        image: doc2,
+        speciality: 'Gastroenterologist',
+        degree: 'MBBS, DM (Gastroenterology)',
+        experience: '7 Years',
+        about: 'Dr. Rachana Deshmukh offers expert care in liver, pancreatic, and bowel disorders with a focus on endoscopic and non-invasive treatments.',
+        fees: 900,
+        address: {
+            line1: '19th Cross, Prabhat Road',
+            line2: 'Pune, Maharashtra'
+        }
+    }
 ]
