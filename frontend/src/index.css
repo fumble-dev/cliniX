@@ -12,3 +12,9 @@
 ::-webkit-scrollbar{
   @apply  hidden;
 }
+
+@media (max-width:740px){
+  .active a{
+    @apply text-white bg-gray-500;
+  }
+}
