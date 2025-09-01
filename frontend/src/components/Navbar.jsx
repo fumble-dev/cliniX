@@ -1,13 +1,21 @@
 import React, { useState } from 'react'
 import { assets } from '../assets/assets'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useContext } from 'react'
+import { AppContext } from '../context/AppContext'
 
 const Navbar = () => {
 
     const navigate = useNavigate()
 
     const [showMenu, setShowMenu] = useState(false);
-    const [token, setToken] = useState(true)
+
+    const { token, setToken } = useContext(AppContext)
+
+    const logout = () => {
+        setToken(false)
+        localStorage.removeItem('token')
+    }
 
     return (
         <div className='flex justify-between items-center text-sm py-4 mb-5 border-b border-b-gray-400'>
@@ -41,12 +49,12 @@ const Navbar = () => {
                                 <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
                                     <p onClick={() => navigate('/my-profile')} className='hover:text-black cursor-pointer' >My Profile</p>
                                     <p onClick={() => navigate('/my-appointments')} className='hover:text-black cursor-pointer'>My Appointments</p>
-                                    <p onClick={() => setToken(false)} className='hover:text-black cursor-pointer'>Logout</p>
+                                    <p onClick={logout} className='hover:text-black cursor-pointer'>Logout</p>
                                 </div>
                             </div>
                         </div>
                         :
-                        <button onClick={() => navigate('/login')} className='bg-black text-white px-8 py-3 rounded-full font-light hidden md:block '>Create Account</button>
+                        <button onClick={() => navigate('/login')} className='bg-black text-white px-8 py-3 rounded-full font-light hidden md:block cursor-pointer '>Create Account</button>
                 }
 
                 <img src={assets.menu_icon} alt="" className='w-6 md:hidden cursor-pointer' onClick={() => setShowMenu(true)} />
