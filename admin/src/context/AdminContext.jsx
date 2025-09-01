@@ -25,12 +25,28 @@ const AdminContextProvider = (props) => {
     }
   }
 
+  const changeAvailability = async (docId) => {
+    try {
+      const { data } = await axios.post(backendUrl + '/api/admin/change-availability', { docId }, { headers: { atoken } })
+      if (data.success) {
+        toast.success(data.message)
+      } else {
+        toast.error(data.message)
+        getAllDoctors()
+      }
+    } catch (error) {
+      toast.error(error.message)
+      console.error(error)
+    }
+  }
+
   const value = {
     atoken,
     setAToken,
     backendUrl,
     doctors,
-    getAllDoctors
+    getAllDoctors,
+    changeAvailability
   };
 
   return (
