@@ -2,6 +2,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import userModel from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
+import { v2 as cloudinary } from 'cloudinary'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'iloveyou';
 
@@ -108,4 +109,67 @@ const loginUser = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser };
+const getProfile = async (req, res) => {
+    try {
+        const { userId } = req;
+
+        const userData = await userModel.findById(userId).select('-password');
+        if (!userData) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            userData
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+export const updateProfile = async (req, res) => {
+    try {
+        const { userId } = req;
+        const {  name, phone, address, dob, gender } = req.body;
+        const imageFile = req.file
+
+        if (!name || !phone || !address || !dob || !gender) {
+            return res.json({
+                success: false,
+                message: 'Provide all details.'
+            })
+        }
+
+        const parsedAddress = typeof address === "string" ? JSON.parse(address) : address;
+        await userModel.findByIdAndUpdate(userId, { name, phone, address: parsedAddress, dob, gender });
+
+        if (imageFile) {
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: 'image' })
+            const imageUrl = imageUpload.secure_url;
+
+            await userModel.findByIdAndUpdate(userId, { image: imageUrl })
+        }
+
+        return res.json({
+            success: true,
+            message: "Profile updated successfully."
+        })
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+
+export { registerUser, loginUser, getProfile };
