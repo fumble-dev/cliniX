@@ -136,7 +136,7 @@ const getProfile = async (req, res) => {
     }
 };
 
-export const updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
     try {
         const { userId } = req;
         const { name, phone, address, dob, gender } = req.body;
@@ -173,7 +173,7 @@ export const updateProfile = async (req, res) => {
     }
 }
 
-export const bookAppointment = async (req, res) => {
+const bookAppointment = async (req, res) => {
     try {
         const { userId } = req;
         const { docId, slotDate, slotTime } = req.body;
@@ -239,6 +239,40 @@ export const bookAppointment = async (req, res) => {
     }
 }
 
+const listAppointment = async (req, res) => {
+    try {
+        const { userId } = req;
 
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized. User ID missing.",
+            });
+        }
 
-export { registerUser, loginUser, getProfile, bookAppointment };
+        const appointments = await appointmentModel.find({ userId })
+
+        if (!appointments.length) {
+            return res.status(204).json({
+                success: true,
+                message: "No appointments found.",
+                appointments: [],
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            count: appointments.length,
+            appointments,
+        });
+        
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment };
