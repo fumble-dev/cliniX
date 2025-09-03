@@ -265,7 +265,7 @@ const listAppointment = async (req, res) => {
             count: appointments.length,
             appointments,
         });
-        
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -275,4 +275,50 @@ const listAppointment = async (req, res) => {
     }
 }
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment };
+const cancelAppointment = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { appointmentId } = req.body;
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+    if (!appointmentData) {
+      return res.json({ success: false, message: "Appointment not found." });
+    }
+
+    if (appointmentData.userId.toString() !== userId.toString()) {
+      return res.json({
+        success: false,
+        message: "Unauthorized action."
+      });
+    }
+
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
+    const { docId, slotDate, slotTime } = appointmentData;
+    const doctorData = await doctorModel.findById(docId);
+
+    if (doctorData) {
+      let slots_booked = doctorData.slots_booked;
+      if (slots_booked[slotDate]) {
+        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime);
+      }
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+    }
+
+    return res.json({
+      success: true,
+      message: "Appointment Cancelled Successfully."
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment , cancelAppointment};

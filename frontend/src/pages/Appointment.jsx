@@ -18,11 +18,11 @@ const Appointment = () => {
   const [docSlots, setDocSlots] = useState([]);
   const [slotIndex, setSlotIndex] = useState(0);
   const [slotTime, setSlotTime] = useState('');
+  const [booking, setBooking] = useState(false); // ✅ loading state for button
 
   const fetchDocInfo = async () => {
     const docInformation = doctors.find(doc => doc._id === docId)
     setDocInfo(docInformation)
-
   }
 
   const getAvailableSlot = async () => {
@@ -62,14 +62,12 @@ const Appointment = () => {
         const bookedSlots = docInfo.slots_booked?.[slotDate] || [];
         const isSlotAvailable = !bookedSlots.includes(slotTime);
 
-
         if (isSlotAvailable) {
           timeSlots.push({
             datetime: new Date(currDate),
             time: formattedTime
           })
         }
-
 
         currDate.setMinutes(currDate.getMinutes() + 30);
       }
@@ -84,7 +82,12 @@ const Appointment = () => {
       return navigate('/login')
     }
 
+    if (!slotTime) {
+      return toast.warn("Please select a time slot before booking.");
+    }
+
     try {
+      setBooking(true); // ✅ start loading
       const date = docSlots[slotIndex][0].datetime;
       let day = date.getDate()
       let month = date.getMonth() + 1
@@ -92,10 +95,11 @@ const Appointment = () => {
 
       const slotDate = `${day}_${month}_${year}`;
 
-      if (!slotTime) {
-        return toast.warn("Please select a time slot before booking.");
-      }
-      const { data } = await axios.post(backendUrl + '/api/user/book-appointment', { docId, slotDate, slotTime }, { headers: { Authorization: `Bearer ${token}` } })
+      const { data } = await axios.post(
+        backendUrl + '/api/user/book-appointment',
+        { docId, slotDate, slotTime },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
 
       if (data.success) {
         toast.success(data.message)
@@ -107,6 +111,8 @@ const Appointment = () => {
     } catch (error) {
       console.error(error)
       toast.error(error.message)
+    } finally {
+      setBooking(false); // ✅ stop loading
     }
   }
 
@@ -172,7 +178,14 @@ const Appointment = () => {
             ))
           }
         </div>
-        <button onClick={bookAppointment} className='bg-gray-500 text-white text-sm font-light px-14 py-3 rounded-full cursor-pointer my-6 hover:scale-105 transition-all duration-500'>Book an Appointment</button>
+        <button
+          onClick={bookAppointment}
+          disabled={booking} // ✅ disable when loading
+          className={`text-sm font-light px-14 py-3 rounded-full cursor-pointer my-6 transition-all duration-500 
+            ${booking ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-500 text-white hover:scale-105'}`}
+        >
+          {booking ? 'Booking...' : 'Book an Appointment'}
+        </button>
       </div>
 
       <RelatedDoctors docId={docId} speciality={docInfo.speciality} />
