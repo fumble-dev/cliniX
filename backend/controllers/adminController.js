@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import doctorModel from '../models/doctorModel.js'
 import { v2 as cloudinary } from 'cloudinary'
 import appointmentModel from '../models/appointmentModel.js'
+import userModel from '../models/userModel.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'iloveyou'
 
@@ -130,7 +131,7 @@ const loginAdmin = async (req, res) => {
     }
 }
 
-const allDoctors = async(req,res)=>{
+const allDoctors = async (req, res) => {
     try {
         const doctors = await doctorModel.find({}).select('-password')
         res.json({
@@ -146,7 +147,7 @@ const allDoctors = async(req,res)=>{
     }
 }
 
-const appointmentsAdmin = async (req,res) => {
+const appointmentsAdmin = async (req, res) => {
     try {
         const appointments = await appointmentModel.find({})
         res.json({
@@ -154,7 +155,7 @@ const appointmentsAdmin = async (req,res) => {
             appointments
         })
     } catch (error) {
-         console.error(error);
+        console.error(error);
         return res.json({
             success: false,
             message: error.message
@@ -199,4 +200,31 @@ const appointmentCancel = async (req, res) => {
     }
 };
 
-export { addDoctor, loginAdmin, allDoctors , appointmentsAdmin, appointmentCancel};
+const adminDashboard = async (req, res) => {
+    try {
+        const doctors = await doctorModel.find({})
+        const users = await userModel.find({})
+        const appointments = await appointmentModel.find({})
+
+        const dashData = {
+            doctors: doctors.length,
+            patients: users.length,
+            appointments: appointments.length,
+            latestAppointments: appointments.reverse().slice(0, 5)
+        }
+
+        res.json({
+            success: true,
+            dashData
+        })
+        
+    } catch (error) {
+        console.error(error);
+        return res.json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard };
