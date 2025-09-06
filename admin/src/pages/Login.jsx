@@ -5,10 +5,13 @@ import { useContext } from 'react'
 import { AdminContext } from '../context/AdminContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { DoctorContext } from '../context/DoctorContext'
 
 const Login = () => {
 
     const { setAToken, backendUrl } = useContext(AdminContext)
+
+    const {setDToken } = useContext(DoctorContext)
 
     const [state, setState] = useState('Admin')
     const [email, setEmail] = useState('')
@@ -29,8 +32,8 @@ const Login = () => {
             } else {
                 const { data } = await axios.post(backendUrl + '/api/doctor/login', { email, password });
                 if (data.success) {
-                    localStorage.setItem('token', data.token);
-                    setAToken(data.token);
+                    localStorage.setItem('dtoken', data.token);
+                    setDToken(data.token);
                     toast.success('Doctor Login Successful.');
                 } else {
                     toast.error(data.message);
