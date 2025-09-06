@@ -1,6 +1,7 @@
 import doctorModel from "../models/doctorModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import appointmentModel from "../models/appointmentModel.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'iloveyou'
 
@@ -96,6 +97,104 @@ const loginDoctor = async (req, res) => {
     }
 };
 
+const appointmentsDoctor = async (req, res) => {
+    try {
+        const docId = req.docId;
+
+        if (!docId) {
+            return res.status(400).json({
+                success: false,
+                message: "Doctor ID missing in request."
+            });
+        }
+
+        const appointments = await appointmentModel.find({ docId });
+
+        return res.status(200).json({
+            success: true,
+            appointments
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error. Please try again later."
+        });
+    }
+};
+
+const appointmentComplete = async (req, res) => {
+  try {
+    const { docId } = req;
+    const { appointmentId } = req.body;
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData) {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment not found.",
+      });
+    }
+
+    if (String(appointmentData.docId) !== String(docId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized action.",
+      });
+    }
+
+    await appointmentModel.findByIdAndUpdate(appointmentId, { isCompleted: true });
+
+    return res.status(200).json({
+      success: true,
+      message: "Appointment marked as completed.",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
+  }
+};
+
+const appointmentCancel = async (req, res) => {
+  try {
+    const { docId } = req;
+    const { appointmentId } = req.body;
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData) {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment not found.",
+      });
+    }
+
+    if (String(appointmentData.docId) !== String(docId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized action.",
+      });
+    }
+
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
+    return res.status(200).json({
+      success: true,
+      message: "Appointment Cancelled.",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
+  }
+};
 
 
-export { changeAvailablity, doctorList, loginDoctor };
+export { changeAvailablity, doctorList, loginDoctor, appointmentsDoctor, appointmentCancel, appointmentComplete };
