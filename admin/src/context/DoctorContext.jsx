@@ -10,6 +10,7 @@ const DoctorContextProvider = (props) => {
     const [dtoken, setDToken] = useState(localStorage.getItem("dtoken") || "");
     const [appointments, setAppointments] = useState([]);
     const [dashData, setDashData] = useState(false)
+    const [profileData, setProfileData] = useState(false)
 
     const getAppointments = async () => {
         try {
@@ -78,7 +79,7 @@ const DoctorContextProvider = (props) => {
             const { data } = await axios.get(backendUrl + '/api/doctor/dashboard', { headers: { Authorization: `Bearer ${dtoken}` } })
             if (data.success) {
                 setDashData(data.dashData)
-                console.log(data.dashData)
+                // console.log(data.dashData)
             } else {
                 toast.error(data.message)
             }
@@ -86,6 +87,22 @@ const DoctorContextProvider = (props) => {
             console.error(error);
             toast.error(error?.response?.data?.message || error.message || "Something went wrong");
         }
+    }
+
+    const getProfileData = async () => {
+        try {
+            const { data } = await axios.get(backendUrl + '/api/doctor/profile', { headers: { Authorization: `Bearer ${dtoken}` } })
+            if (data.success) {
+                setProfileData(data.profileData)
+                // console.log(data.profileData)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(error?.response?.data?.message || error.message || "Something went wrong");
+        }
+
     }
 
     const value = {
@@ -98,7 +115,9 @@ const DoctorContextProvider = (props) => {
         completeAppointment,
         cancelAppointment,
         dashData, setDashData,
-        getDashData
+        getDashData,
+        profileData, setProfileData,
+        getProfileData
     };
 
     return (

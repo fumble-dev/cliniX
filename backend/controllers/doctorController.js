@@ -236,5 +236,62 @@ const doctorDashboard = async (req, res) => {
   }
 }
 
+const doctorProfile = async (req, res) => {
+  try {
+    const { docId } = req;
 
-export { changeAvailablity, doctorList, loginDoctor, appointmentsDoctor, appointmentCancel, appointmentComplete, doctorDashboard };
+    const profileData = await doctorModel.findById(docId).select('-password');
+
+    if (!profileData) {
+      return res.status(404).json({
+        success: false,
+        message: "Doctor not found.",
+      });
+    }
+
+    return res.json({
+      success: true,
+      profileData,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
+  }
+};
+
+const updateDoctorProfile = async (req, res) => {
+  try {
+    const { docId } = req;
+    const { fees, address, available } = req.body;
+
+    const updatedDoctor = await doctorModel.findByIdAndUpdate(
+      docId,
+      { fees, address, available }).select("-password");
+
+    if (!updatedDoctor) {
+      return res.json({
+        success: false,
+        message: "Doctor not found.",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Profile updated successfully.",
+      doctor: updatedDoctor,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
+  }
+};
+
+
+
+export { changeAvailablity, doctorList, loginDoctor, appointmentsDoctor, appointmentCancel, appointmentComplete, doctorDashboard, doctorProfile, updateDoctorProfile };
