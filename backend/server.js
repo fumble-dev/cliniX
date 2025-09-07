@@ -1,7 +1,7 @@
 import express from 'express'
 import 'dotenv/config'
 import cors from 'cors'
-import connectToDb from './config/mongodb.js'
+import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 import adminRouter from './routes/adminRoute.js'
 import doctorRouter from './routes/doctorRoute.js'
@@ -26,6 +26,6 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, async () => {
-    await connectToDb();
+    await connectDB();
     console.log(`server is listening on port ${port}`)
 })
