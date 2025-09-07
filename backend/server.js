@@ -15,6 +15,16 @@ connectCloudinary()
 app.use(cors())
 app.use(express.json())
 
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("DB connection error:", err.message);
+    return res.status(500).json({ success: false, message: "Database connection failed" });
+  }
+});
+
 app.use('/api/admin', adminRouter)
 app.use('/api/doctor', doctorRouter)
 app.use('/api/user', userRouter)
@@ -26,6 +36,6 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, async () => {
-    await connectDB();
+    // await connectDB();
     console.log(`server is listening on port ${port}`)
 })
